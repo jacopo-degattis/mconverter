@@ -1,0 +1,14 @@
+{
+    "spotify": {
+        "client_id": "292eaeea04014559965b136528521a03",
+        "client_secret": "c4465aa2054446458ddc4ea68731be59",
+        "scopes": ["user-read-private", "user-read-email"],
+        "redirect_uri": "https://www.google.it/"
+    },
+    "deezer": {
+        "app_id": "",
+        "app_secret": "",
+        "scopes": [],
+        "redirect_uri": ""
+    }
+}
