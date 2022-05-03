@@ -11,8 +11,7 @@ const TOKEN_URI: &str = "https://accounts.spotify.com/api/token";
 
 pub struct Spotify {
     config: SpotifyConfig,
-    access_token: String,
-    refresh_token: String,
+    credentials: SpotifyTokenResponse,
     client: reqwest::blocking::Client,
 }
 
@@ -20,10 +19,13 @@ impl Spotify {
     pub fn new() -> Self {
         Self {
             config: utils::parse_config("src/config.json").unwrap().spotify,
-            access_token: String::from(""),
-            refresh_token: String::from(""),
+            credentials: SpotifyTokenResponse::default(),
             client: reqwest::blocking::Client::new(),
         }
+    }
+
+    fn update(&mut self, creds: SpotifyTokenResponse) {
+        self.credentials = creds;
     }
 
     fn get_code(&self) -> String {
@@ -64,7 +66,7 @@ impl Spotify {
         code
     }
 
-    fn get_token(&self, code: String) {
+    fn get_token(&mut self, code: String) {
         let params = [
             ("grant_type", "authorization_code"),
             ("code", &code.strip_suffix("\n").unwrap_or(&code)),
@@ -86,17 +88,17 @@ impl Spotify {
                     ))
                 ),
             )
-            .header("Content-Type", "application/x-www-form-urlencoded")
             .send()
             .unwrap();
 
-        println!("Status => {}", res.status());
+        if let Ok(json) = res.json::<SpotifyTokenResponse>() {
+            self.update(json);
+        }
 
-        // let t = res.json::<SpotifyTokenResponse>();
-        // println!("{:?}", t);
+        println!("Creds => {:?}", self.credentials);
     }
 
-    pub fn authenticate(&self) {
+    pub fn authenticate(&mut self) {
         let code = self.get_code();
         self.get_token(code);
     }

@@ -16,6 +16,18 @@ pub struct SpotifyTokenResponse {
     pub expires_in: i16,
 }
 
+impl Default for SpotifyTokenResponse {
+    fn default() -> SpotifyTokenResponse {
+        SpotifyTokenResponse {
+            access_token: String::from(""),
+            refresh_token: String::from(""),
+            scope: String::from(""),
+            token_type: String::from(""),
+            expires_in: 0
+        }
+    }
+}
+
 #[derive(Deserialize, Debug)]
 pub struct SpotifyConfig {
     pub client_id: String,
