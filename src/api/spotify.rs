@@ -15,6 +15,8 @@ pub struct Spotify {
     client: reqwest::blocking::Client,
 }
 
+// TODO: Improve .unwrap usages
+
 impl Spotify {
     pub fn new() -> Self {
         Self {
@@ -26,6 +28,13 @@ impl Spotify {
 
     fn update(&mut self, creds: SpotifyTokenResponse) {
         self.credentials = creds;
+    }
+
+    fn load_config_from_file(&mut self) {
+        let cache_file = std::fs::File::open(".cache.json").unwrap();
+        let json: SpotifyTokenResponse =
+            serde_json::from_reader(cache_file).expect("Error while reading or parsing");
+        self.update(json);
     }
 
     fn get_code(&self) -> String {
@@ -92,14 +101,20 @@ impl Spotify {
             .unwrap();
 
         if let Ok(json) = res.json::<SpotifyTokenResponse>() {
+            std::fs::write(".cache.json", serde_json::to_string_pretty(&json).unwrap()).unwrap();
             self.update(json);
         }
-
-        println!("Creds => {:?}", self.credentials);
     }
 
     pub fn authenticate(&mut self) {
-        let code = self.get_code();
-        self.get_token(code);
+        // Before doing anything check if config file already exists
+
+        match std::path::Path::new(".cache.json").exists() {
+            true => self.load_config_from_file(),
+            false => {
+                let code = self.get_code();
+                self.get_token(code);
+            }
+        };
     }
 }
