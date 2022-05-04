@@ -1,11 +1,11 @@
 use super::utils;
-use base64::encode;
+use crate::models::SpotifyConfig;
+use crate::models::SpotifyTokenResponse;
 use open;
-use reqwest::blocking::Client;
 use std::io::{stdin, stdout, Write};
 use url::Url;
-use utils::{SpotifyConfig, SpotifyTokenResponse};
 
+const API_URI: &str = "https://api.spotify.com/v1";
 const AUTH_URI: &str = "https://accounts.spotify.com";
 const TOKEN_URI: &str = "https://accounts.spotify.com/api/token";
 
@@ -116,5 +116,21 @@ impl Spotify {
                 self.get_token(code);
             }
         };
+    }
+
+    pub fn get_playlist_from_id(&self, id: &str) {
+        let res = self
+            .client
+            .get(format!("{}/playlists/{}", API_URI, id))
+            .header("Content-Type", "application/json")
+            .header(
+                "Authorization",
+                format!("Bearer {}", self.credentials.access_token),
+            )
+            .send()
+            .unwrap();
+
+        println!("Status => {}", res.status());
+        println!("Body => {:?}", res.text());
     }
 }
