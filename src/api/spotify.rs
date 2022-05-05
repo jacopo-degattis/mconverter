@@ -1,7 +1,10 @@
 use super::utils;
+use crate::models::Playlist;
 use crate::models::SpotifyConfig;
 use crate::models::SpotifyTokenResponse;
+use base64::encode;
 use open;
+use reqwest::blocking::Client;
 use std::io::{stdin, stdout, Write};
 use url::Url;
 
@@ -130,7 +133,15 @@ impl Spotify {
             .send()
             .unwrap();
 
-        println!("Status => {}", res.status());
-        println!("Body => {:?}", res.text());
+        // println!("Response code => {:?}", res.text());
+        // std::fs::write("test.json", res.text().unwrap());
+        // if let Ok(json) = res.json::<Playlist>() {
+        //     println!("Got playlist => {:?}", json);
+        // }
+
+        match res.json::<Playlist>() {
+            Ok(json) => println!("Got playlist => {:?}", json),
+            Err(err) => println!("Err => {}", err),
+        }
     }
 }
