@@ -7,7 +7,7 @@ pub struct ExternalUrls {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Followers {
-    pub href: String,
+    pub href: Option<String>,
     pub total: i32,
 }
 
@@ -22,10 +22,9 @@ pub struct Images {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Owner {
     pub external_urls: ExternalUrls,
-    pub followers: Followers,
     pub href: String,
     pub id: String,
-    pub _type: String,
+    // pub _type: String,
     pub uri: String,
     pub display_name: String,
 }
@@ -36,13 +35,13 @@ pub struct Artist {
     pub href: String,
     pub id: String,
     pub name: String,
-    pub _type: String,
+    // pub type: String,
     pub uri: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Album {
-    pub albmum_type: String,
+    pub album_type: String,
     pub artists: Vec<Artist>,
     pub available_markets: Vec<String>,
     pub external_urls: ExternalUrls,
@@ -53,7 +52,7 @@ pub struct Album {
     pub release_date: String,
     pub release_date_precision: String,
     pub total_tracks: i16,
-    pub _type: String,
+    // pub _type: String,
     pub uri: String,
 }
 
@@ -78,24 +77,33 @@ pub struct TrackInfo {
     pub is_local: bool,
     pub name: String,
     pub popularity: i16,
-    pub preview_url: String,
+    pub preview_url: Option<String>,
     pub track: bool,
     pub track_number: i16,
-    pub _type: String,
+    // pub _type: String,
     pub uri: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct VideoThumbnail {
-    pub url: String,
+    pub url: Option<String>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct OwnerX {
+    pub external_urls: ExternalUrls,
+    pub href: String,
+    pub id: String,
+    // pub _type: String,
+    pub uri: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Track {
     pub added_at: String,
-    pub added_by: Owner,
+    pub added_by: OwnerX,
     pub is_local: bool,
-    pub primary_color: String,
+    pub primary_color: Option<String>,
     pub track: TrackInfo,
     pub video_thumbnail: VideoThumbnail,
 }
@@ -107,7 +115,7 @@ pub struct Tracks {
     pub limit: i16,
     pub next: String,
     pub offset: i16,
-    pub previous: String,
+    pub previous: Option<String>,
     pub total: i16,
 }
 
@@ -116,15 +124,15 @@ pub struct Playlist {
     pub collaborative: bool,
     pub description: String,
     pub external_urls: ExternalUrls,
-    pub followrs: Followers,
+    pub followers: Followers,
     pub href: String,
     pub id: String,
-    pub images: Images,
+    pub images: Vec<Images>,
     pub name: String,
     pub owner: Owner,
     pub public: bool,
     pub snapshot_id: String,
     pub tracks: Tracks,
-    pub _type: String,
+    // pub _type: String,
     pub uri: String,
 }

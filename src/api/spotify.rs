@@ -121,7 +121,7 @@ impl Spotify {
         };
     }
 
-    pub fn get_playlist_from_id(&self, id: &str) {
+    pub fn get_playlist_from_id(&self, id: &str) -> Result<Playlist, reqwest::Error> {
         let res = self
             .client
             .get(format!("{}/playlists/{}", API_URI, id))
@@ -133,15 +133,13 @@ impl Spotify {
             .send()
             .unwrap();
 
-        // println!("Response code => {:?}", res.text());
-        // std::fs::write("test.json", res.text().unwrap());
-        // if let Ok(json) = res.json::<Playlist>() {
-        //     println!("Got playlist => {:?}", json);
-        // }
+        // TODO: right now type is not implemented because it is a reserved
+        // keyword... is it necessary to add it ? Add 'Option' to all the fields
+        // that in some case could be empty
 
         match res.json::<Playlist>() {
-            Ok(json) => println!("Got playlist => {:?}", json),
-            Err(err) => println!("Err => {}", err),
+            Ok(json) => Ok(json),
+            Err(err) => Err(err),
         }
     }
 }
