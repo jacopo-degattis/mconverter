@@ -1,7 +1,7 @@
 use super::utils;
-use crate::models::Playlist;
 use crate::models::SpotifyConfig;
 use crate::models::SpotifyTokenResponse;
+use crate::models::{Playlist, Track};
 use base64::encode;
 use open;
 use reqwest::blocking::Client;
@@ -140,6 +140,18 @@ impl Spotify {
         match res.json::<Playlist>() {
             Ok(json) => Ok(json),
             Err(err) => Err(err),
+        }
+    }
+
+    pub fn get_tracks_from_playlist(&self, id: &str) -> Vec<String> {
+        match self.get_playlist_from_id(id) {
+            Ok(playlist) => playlist
+                .tracks
+                .items
+                .into_iter()
+                .map(|x| x.track.id)
+                .collect::<Vec<String>>(),
+            Err(err) => Vec::new(),
         }
     }
 }

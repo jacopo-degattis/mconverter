@@ -7,7 +7,7 @@ pub mod models;
 fn main() {
     let mut a = Spotify::new();
     a.authenticate();
-    if let Ok(playlist) = a.get_playlist_from_id("6yNRwWCVVNLEsif1esJ1Cc") {
-        println!("Got => {:?}", playlist);
-    }
+    let tracks: Vec<String> = a.get_tracks_from_playlist("6yNRwWCVVNLEsif1esJ1Cc");
+
+    println!("Tracks ids => {:?}", tracks);
 }
