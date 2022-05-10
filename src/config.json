@@ -6,9 +6,9 @@
         "redirect_uri": "https://www.google.it/"
     },
     "deezer": {
-        "app_id": "",
-        "app_secret": "",
-        "scopes": [],
-        "redirect_uri": ""
+        "app_id": "395164",
+        "app_secret": "d1f5b10dd534bb8ee9bdae5b22125a43",
+        "scopes": ["basic_access","email"],
+        "redirect_uri": "https://www.google.it/"
     }
 }

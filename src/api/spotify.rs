@@ -1,10 +1,8 @@
 use super::utils;
+use crate::models::Playlist;
 use crate::models::SpotifyConfig;
 use crate::models::SpotifyTokenResponse;
-use crate::models::{Playlist, Track};
-use base64::encode;
 use open;
-use reqwest::blocking::Client;
 use std::io::{stdin, stdout, Write};
 use url::Url;
 
@@ -58,7 +56,6 @@ impl Spotify {
         // I want the program to crash if it can't execute the command
         open::that(authorize_url.to_string()).unwrap();
 
-        let mut code: String = String::new();
         let mut input: String = String::new();
         print!("Please paste here the url you've been redirected to: ");
 
@@ -69,11 +66,10 @@ impl Spotify {
 
         let split: Vec<&str> = input.split("?code=").collect();
 
-        code = match split.len() {
+        let code: String = match split.len() {
             2 => String::from(split[1]),
             _ => String::from(""),
         };
-        // let code: String = String::from(split[1]);
 
         code
     }
@@ -133,6 +129,9 @@ impl Spotify {
             .send()
             .unwrap();
 
+        // TODO: add authorization header by default in request without
+        // having to specify it each time i make a request
+
         // TODO: right now type is not implemented because it is a reserved
         // keyword... is it necessary to add it ? Add 'Option' to all the fields
         // that in some case could be empty
@@ -151,7 +150,23 @@ impl Spotify {
                 .into_iter()
                 .map(|x| x.track.id)
                 .collect::<Vec<String>>(),
-            Err(err) => Vec::new(),
+            Err(_) => Vec::new(),
         }
     }
+
+    // pub fn update_playlist(&self, id: &str, tracks: Vec<String>) -> bool {
+    //     let params = [("tracks", tracks)];
+
+    //     let res = self
+    //         .client
+    //         .put(format!("{}/playlists/{}/tracks", API_URI, id))
+    //         .form(&params)
+    //         .header(
+    //             "Authorization",
+    //             format!("Bearer {}", self.credentials.access_token),
+    //         )
+    //         .send();
+
+    //     unimplemented!();
+    // }
 }
