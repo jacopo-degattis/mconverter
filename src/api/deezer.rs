@@ -1,5 +1,6 @@
 use super::utils;
 use crate::models::DeezerConfig;
+use crate::models::DeezerTokenResponse;
 use std::io::{stdin, stdout, Write};
 use url::Url;
 
@@ -7,7 +8,7 @@ const AUTH_URI: &str = "https://connect.deezer.com/oauth/";
 
 pub struct Deezer {
     config: DeezerConfig,
-    // credentials: DeezerTokenResponse,
+    credentials: DeezerTokenResponse,
     client: reqwest::blocking::Client,
 }
 
@@ -15,8 +16,19 @@ impl Deezer {
     pub fn new() -> Self {
         Self {
             config: utils::parse_config("src/config.json").unwrap().deezer,
+            credentials: DeezerTokenResponse::default(),
             client: reqwest::blocking::Client::new(),
         }
+    }
+
+    fn update(&mut self, creds: DeezerTokenResponse) {
+        self.credentials = creds;
+    }
+
+    fn load_config_from_file(&mut self) {
+        let cache_file = std::fs::File::open(".deez-cache.json").unwrap();
+        let json: DeezerTokenResponse = serde_json::from_reader(cache_file).expect("Error while reading or parsing");
+        self.update(json);
     }
 
     fn get_code(&self) -> String {
@@ -55,16 +67,28 @@ impl Deezer {
             ("app_id", self.config.app_id.as_str()),
             ("secret", self.config.app_secret.as_str()),
             ("code", code.strip_suffix("\n").unwrap_or(&code)),
-            ("output", "json"),
         ];
 
-        let url = format!("{}/{}", AUTH_URI, "access_token.php");
+        // TODO: how to remove ?output=json from here ? 
+        // NOTE: in params it doesn't work... figure it out
+        let url = format!("{}/{}?output=json", AUTH_URI, "access_token.php");
         let res = self.client.post(url).form(&params).send().unwrap();
-        // if let Ok(json) = res.json::<DeezerToken>
+
+        if let Ok(json) = res.json::<DeezerTokenResponse>() {
+            std::fs::write(".deez-cache.json", serde_json::to_string_pretty(&json).unwrap()).unwrap();
+            self.update(json);
+        }
+
+        println!("Creds => {:?}", self.credentials);
     }
 
     pub fn authenticate(&mut self) {
-        let code: String = self.get_code();
-        self.get_token(code);
+        match std::path::Path::new(".deez-cache.json").exists() {
+            true => self.load_config_from_file(),
+            false => {
+                let code: String = self.get_code();
+                self.get_token(code);
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-pub use auth::SpotifyTokenResponse;
+pub use auth::{SpotifyTokenResponse, DeezerTokenResponse};
 pub use config::{Config, DeezerConfig, SpotifyConfig};
 pub use spotify::{Playlist, Track};
 

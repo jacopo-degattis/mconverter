@@ -25,3 +25,18 @@ impl Default for SpotifyTokenResponse {
         }
     }
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct DeezerTokenResponse {
+    access_token: String,
+    expires: i16,
+}
+
+impl Default for DeezerTokenResponse {
+    fn default() -> DeezerTokenResponse {
+        DeezerTokenResponse {
+            access_token: String::from(""),
+            expires: 0
+        }
+    }
+}
