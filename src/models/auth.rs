@@ -28,8 +28,8 @@ impl Default for SpotifyTokenResponse {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DeezerTokenResponse {
-    access_token: String,
-    expires: i16,
+    pub access_token: String,
+    pub expires: i16,
 }
 
 impl Default for DeezerTokenResponse {

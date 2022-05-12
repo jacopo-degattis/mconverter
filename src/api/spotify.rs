@@ -1,5 +1,5 @@
 use super::utils;
-use crate::models::Playlist;
+use crate::models::spotify::Playlist;
 use crate::models::SpotifyConfig;
 use crate::models::SpotifyTokenResponse;
 use open;

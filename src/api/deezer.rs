@@ -1,9 +1,11 @@
 use super::utils;
 use crate::models::DeezerConfig;
 use crate::models::DeezerTokenResponse;
+use crate::models::deezer::Playlist;
 use std::io::{stdin, stdout, Write};
 use url::Url;
 
+const API_URI: &str = "https://api.deezer.com/";
 const AUTH_URI: &str = "https://connect.deezer.com/oauth/";
 
 pub struct Deezer {
@@ -89,6 +91,16 @@ impl Deezer {
                 let code: String = self.get_code();
                 self.get_token(code);
             }
+        }
+    }
+
+    pub fn get_playlist_from_id(&self, id: &str) -> Result<Playlist, reqwest::Error> {
+        let params = [("access_token", self.credentials.access_token.as_str())];
+        let res = self.client.get(format!("{}/playlist/{}", API_URI, id)).form(&params).send().unwrap();
+
+        match res.json::<Playlist>() {
+            Ok(json) => Ok(json),
+            Err(err) => Err(err)
         }
     }
 }

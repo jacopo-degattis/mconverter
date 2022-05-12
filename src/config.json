@@ -8,7 +8,7 @@
     "deezer": {
         "app_id": "395164",
         "app_secret": "d1f5b10dd534bb8ee9bdae5b22125a43",
-        "scopes": ["basic_access","email", "offline_access"],
+        "scopes": ["basic_access","email", "offline_access", "manage_library"],
         "redirect_uri": "https://www.google.it/"
     }
 }
