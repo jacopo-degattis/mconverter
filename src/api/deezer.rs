@@ -1,7 +1,7 @@
 use super::utils;
 use crate::models::DeezerConfig;
 use crate::models::DeezerTokenResponse;
-use crate::models::deezer::Playlist;
+use crate::models::deezer::{Playlist, QueryResults};
 use std::io::{stdin, stdout, Write};
 use url::Url;
 
@@ -80,8 +80,6 @@ impl Deezer {
             std::fs::write(".deez-cache.json", serde_json::to_string_pretty(&json).unwrap()).unwrap();
             self.update(json);
         }
-
-        println!("Creds => {:?}", self.credentials);
     }
 
     pub fn authenticate(&mut self) {
@@ -91,6 +89,20 @@ impl Deezer {
                 let code: String = self.get_code();
                 self.get_token(code);
             }
+        }
+    }
+
+    pub fn search(&self, query: &str) -> Result<QueryResults, reqwest::Error> {
+        let url = format!("{}/{}", API_URI, "search");
+        let mut search_url: Url = Url::parse(url.as_str()).unwrap();
+
+        search_url.query_pairs_mut().extend_pairs([("q", query)]);
+
+        let res = self.client.get(search_url).send().unwrap();
+
+        match res.json::<QueryResults>() {
+            Ok(json) => Ok(json),
+            Err(err) => Err(err)
         }
     }
 

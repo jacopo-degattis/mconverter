@@ -1,5 +1,5 @@
 use super::utils;
-use crate::models::spotify::Playlist;
+use crate::models::spotify::{Playlist, Track};
 use crate::models::SpotifyConfig;
 use crate::models::SpotifyTokenResponse;
 use open;
@@ -142,14 +142,15 @@ impl Spotify {
         }
     }
 
-    pub fn get_tracks_from_playlist(&self, id: &str) -> Vec<String> {
+    pub fn get_tracks_from_playlist(&self, id: &str) -> Vec<Track> {
         match self.get_playlist_from_id(id) {
-            Ok(playlist) => playlist
-                .tracks
-                .items
-                .into_iter()
-                .map(|x| x.track.id)
-                .collect::<Vec<String>>(),
+            // Ok(playlist) => playlist
+            //     .tracks
+            //     .items
+            //     .into_iter()
+            //     .map(|x| x.track.id)
+            //     .collect::<Vec<String>>(),
+            Ok(playlist) => playlist.tracks.items,
             Err(_) => Vec::new(),
         }
     }

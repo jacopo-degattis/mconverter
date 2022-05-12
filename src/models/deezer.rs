@@ -79,3 +79,26 @@ pub struct Playlist {
     pub creator: Owner,
     pub tracks: Tracks,
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct QueryResult {
+    pub id: usize,
+    pub readable: bool,
+    pub title: String,
+    pub title_short: String,
+    pub link: String,
+    pub duration: i16,
+    pub rank: usize,
+    pub explicit_lyrics: bool,
+    pub explicit_content_lyrics: i8,
+    pub explicit_content_cover: i8,
+    pub preview: String,
+    pub md5_image: String,
+    pub artist: Artist,
+    pub album: Album,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct QueryResults {
+    data: Vec<QueryResult>
+}
