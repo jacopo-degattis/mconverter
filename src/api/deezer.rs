@@ -1,7 +1,7 @@
 use super::utils;
+use crate::models::deezer::{Playlist, QueryResults};
 use crate::models::DeezerConfig;
 use crate::models::DeezerTokenResponse;
-use crate::models::deezer::{Playlist, QueryResults};
 use std::io::{stdin, stdout, Write};
 use url::Url;
 
@@ -29,7 +29,8 @@ impl Deezer {
 
     fn load_config_from_file(&mut self) {
         let cache_file = std::fs::File::open(".deez-cache.json").unwrap();
-        let json: DeezerTokenResponse = serde_json::from_reader(cache_file).expect("Error while reading or parsing");
+        let json: DeezerTokenResponse =
+            serde_json::from_reader(cache_file).expect("Error while reading or parsing");
         self.update(json);
     }
 
@@ -71,13 +72,17 @@ impl Deezer {
             ("code", code.strip_suffix("\n").unwrap_or(&code)),
         ];
 
-        // TODO: how to remove ?output=json from here ? 
+        // TODO: how to remove ?output=json from here ?
         // NOTE: in params it doesn't work... figure it out
         let url = format!("{}/{}?output=json", AUTH_URI, "access_token.php");
         let res = self.client.post(url).form(&params).send().unwrap();
 
         if let Ok(json) = res.json::<DeezerTokenResponse>() {
-            std::fs::write(".deez-cache.json", serde_json::to_string_pretty(&json).unwrap()).unwrap();
+            std::fs::write(
+                ".deez-cache.json",
+                serde_json::to_string_pretty(&json).unwrap(),
+            )
+            .unwrap();
             self.update(json);
         }
     }
@@ -102,17 +107,22 @@ impl Deezer {
 
         match res.json::<QueryResults>() {
             Ok(json) => Ok(json),
-            Err(err) => Err(err)
+            Err(err) => Err(err),
         }
     }
 
     pub fn get_playlist_from_id(&self, id: &str) -> Result<Playlist, reqwest::Error> {
         let params = [("access_token", self.credentials.access_token.as_str())];
-        let res = self.client.get(format!("{}/playlist/{}", API_URI, id)).form(&params).send().unwrap();
+        let res = self
+            .client
+            .get(format!("{}/playlist/{}", API_URI, id))
+            .form(&params)
+            .send()
+            .unwrap();
 
         match res.json::<Playlist>() {
             Ok(json) => Ok(json),
-            Err(err) => Err(err)
+            Err(err) => Err(err),
         }
     }
 }

@@ -1,7 +1,8 @@
 use api::{Deezer, Spotify};
+use models::deezer::QueryResults;
 use models::spotify::Playlist;
-use std::io::{stdout, stdin, Write};
 use regex::Regex;
+use std::io::{stdin, stdout, Write};
 
 mod api;
 pub mod models;
@@ -11,7 +12,6 @@ fn main() {
     let mut spotify = Spotify::new();
     deezer.authenticate();
     spotify.authenticate();
-    
     // // TODO: add regex URL check
 
     let mut input: String = String::new();
@@ -28,13 +28,30 @@ fn main() {
         .expect("Please enter a valid URL");
 
     // TODO: imrove match condition here
-    let playlist_id: &str = re.captures(&input).and_then(|cap| {
-        cap.name("playlist").map(|p| p.as_str())
-    }).unwrap();
-
+    let playlist_id: &str = re
+        .captures(&input)
+        .and_then(|cap| cap.name("playlist").map(|p| p.as_str()))
+        .unwrap();
 
     let tracks = spotify.get_tracks_from_playlist(playlist_id);
-    
-    println!("Tracks => {:?}", tracks);
+    let mut item_ids: Vec<usize> = Vec::new();
 
+    for track in tracks {
+        if let Ok(result) = deezer.search(
+            format!(
+                "artist:'{}' track:'{}'",
+                track.track.artists[0].name, track.track.name
+            )
+            .as_str(),
+        ) {
+            match result.data.len() > 0 {
+                true => item_ids.push(result.data[0].id),
+                _ => {
+                    // Track Not found
+                }
+            };
+        };
+    }
+
+    println!("Got tracks ids => {:?}", item_ids);
 }

@@ -50,7 +50,7 @@ pub struct Track {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Tracks {
     pub data: Vec<Track>,
-    pub checksum: String
+    pub checksum: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -100,5 +100,5 @@ pub struct QueryResult {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct QueryResults {
-    data: Vec<QueryResult>
+    pub data: Vec<QueryResult>,
 }
