@@ -156,12 +156,21 @@ impl Deezer {
         url.query_pairs_mut()
             .extend_pairs([("access_token", self.credentials.access_token.as_str())]);
 
+        self.client.post(url).form(&params).send().unwrap();
+    }
+
+    pub fn add_tracks_to_playlists(&self, playlist_id: usize, tracks: Vec<String>) {
+        // TODO: handle create playlist if it doesn't exists somewhere else
+
+        let params = [("songs", tracks.join(","))];
+
+        let mut url: Url =
+            Url::parse(format!("{}/playlist/{}/tracks", API_URI, playlist_id).as_str()).unwrap();
+        url.query_pairs_mut()
+            .extend_pairs([("access_token", self.credentials.access_token.as_str())]);
+
         let res = self.client.post(url).form(&params).send().unwrap();
 
         println!("Status => {:?}", res.status());
-    }
-
-    pub fn add_tracks_to_playlists(&self, tracks: Vec<usize>) {
-        unimplemented!();
     }
 }

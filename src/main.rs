@@ -13,7 +13,6 @@ fn main() {
     deezer.authenticate();
     spotify.authenticate();
     // // TODO: add regex URL check
-
     let mut input: String = String::new();
 
     // TODO: this way I only support spotify playlist, but it should
@@ -34,7 +33,7 @@ fn main() {
         .unwrap();
 
     let tracks = spotify.get_tracks_from_playlist(playlist_id);
-    let mut item_ids: Vec<usize> = Vec::new();
+    let mut item_ids: Vec<String> = Vec::new();
 
     for track in tracks {
         if let Ok(result) = deezer.search(
@@ -45,7 +44,7 @@ fn main() {
             .as_str(),
         ) {
             match result.data.len() > 0 {
-                true => item_ids.push(result.data[0].id),
+                true => item_ids.push(result.data[0].id.to_string()),
                 _ => {
                     // Track Not found
                 }
@@ -53,5 +52,7 @@ fn main() {
         };
     }
 
-    println!("Got tracks ids => {:?}", item_ids);
+    deezer.add_tracks_to_playlists(10344668222, item_ids);
+
+    // println!("Got tracks ids => {:?}", item_ids);
 }
