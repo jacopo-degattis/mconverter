@@ -146,6 +146,21 @@ impl Deezer {
         }
     }
 
+    pub fn create_playlist(&self, playlist_name: &str) {
+        if self.playlist_exists(playlist_name) {
+            return;
+        };
+
+        let params = [("title", playlist_name)];
+        let mut url: Url = Url::parse(format!("{}/user/me/playlists", API_URI).as_str()).unwrap();
+        url.query_pairs_mut()
+            .extend_pairs([("access_token", self.credentials.access_token.as_str())]);
+
+        let res = self.client.post(url).form(&params).send().unwrap();
+
+        println!("Status => {:?}", res.status());
+    }
+
     pub fn add_tracks_to_playlists(&self, tracks: Vec<usize>) {
         unimplemented!();
     }
