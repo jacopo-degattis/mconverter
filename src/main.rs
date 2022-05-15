@@ -14,6 +14,9 @@ fn main() {
     spotify.authenticate();
     // // TODO: add regex URL check
 
+    let a = deezer.playlist_exists("prova");
+    println!("Exists => {}", a);
+
     let mut input: String = String::new();
 
     // TODO: this way I only support spotify playlist, but it should

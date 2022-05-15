@@ -1,5 +1,5 @@
 use super::utils;
-use crate::models::deezer::{Playlist, QueryResults};
+use crate::models::deezer::{MyPlaylists, Playlist, QueryResults};
 use crate::models::DeezerConfig;
 use crate::models::DeezerTokenResponse;
 use std::io::{stdin, stdout, Write};
@@ -124,5 +124,29 @@ impl Deezer {
             Ok(json) => Ok(json),
             Err(err) => Err(err),
         }
+    }
+
+    pub fn playlist_exists(&self, playlist_name: &str) -> bool {
+        let mut url: Url = Url::parse(format!("{}/user/me/playlists", API_URI).as_str()).unwrap();
+        url.query_pairs_mut()
+            .extend_pairs([("access_token", self.credentials.access_token.as_str())]);
+
+        let res = self.client.get(url).send().unwrap();
+
+        match res.json::<MyPlaylists>() {
+            Ok(json) => {
+                let playlists = json
+                    .data
+                    .into_iter()
+                    .map(|x| x.title)
+                    .collect::<Vec<String>>();
+                playlists.contains(&String::from(playlist_name))
+            }
+            Err(_) => false,
+        }
+    }
+
+    pub fn add_tracks_to_playlists(&self, tracks: Vec<usize>) {
+        unimplemented!();
     }
 }

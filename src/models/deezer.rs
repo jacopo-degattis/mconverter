@@ -102,3 +102,33 @@ pub struct QueryResult {
 pub struct QueryResults {
     pub data: Vec<QueryResult>,
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct MyPlaylist {
+    pub id: usize,
+    pub title: String,
+    pub duration: usize,
+    pub public: bool,
+    pub is_loved_track: bool,
+    pub collaborative: bool,
+    pub nb_tracks: usize,
+    pub fans: usize,
+    pub link: String,
+    pub picture_small: String,
+    pub picture_medium: String,
+    pub picture_big: String,
+    pub picture_xl: String,
+    pub checksum: String,
+    pub tracklist: String,
+    pub creation_date: String,
+    pub md5_image: String,
+    pub picture_type: String,
+    pub time_add: usize,
+    pub time_mod: usize,
+    pub creator: Owner,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct MyPlaylists {
+    pub data: Vec<MyPlaylist>,
+}
