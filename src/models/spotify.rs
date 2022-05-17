@@ -113,7 +113,7 @@ pub struct Tracks {
     pub href: String,
     pub items: Vec<Track>,
     pub limit: i16,
-    pub next: String,
+    pub next: Option<String>,
     pub offset: i16,
     pub previous: Option<String>,
     pub total: i16,

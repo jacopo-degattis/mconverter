@@ -33,6 +33,8 @@ fn main() {
         .unwrap();
 
     let tracks = spotify.get_tracks_from_playlist(playlist_id);
+    let target_playlist = spotify.get_playlist_from_id(playlist_id).unwrap();
+
     let mut item_ids: Vec<String> = Vec::new();
 
     for track in tracks {
@@ -52,7 +54,13 @@ fn main() {
         };
     }
 
-    deezer.add_tracks_to_playlists(10344668222, item_ids);
+    if !deezer.playlist_exists(target_playlist.name.as_str()) {
+        let id = deezer.create_playlist(target_playlist.name.as_str());
+    } else {
+        // let id = deezer.
+    }
+
+    // deezer.add_tracks_to_playlists(10344668222, item_ids);
 
     // println!("Got tracks ids => {:?}", item_ids);
 }

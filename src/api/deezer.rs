@@ -3,6 +3,7 @@ use crate::models::deezer::{MyPlaylists, Playlist, QueryResults};
 use crate::models::DeezerConfig;
 use crate::models::DeezerTokenResponse;
 use std::io::{stdin, stdout, Write};
+use reqwest::StatusCode;
 use url::Url;
 
 const API_URI: &str = "https://api.deezer.com/";
@@ -146,17 +147,25 @@ impl Deezer {
         }
     }
 
-    pub fn create_playlist(&self, playlist_name: &str) {
+    pub fn create_playlist(&self, playlist_name: &str) -> i64 {
         if self.playlist_exists(playlist_name) {
-            return;
-        };
+            return 0
+        }
 
         let params = [("title", playlist_name)];
         let mut url: Url = Url::parse(format!("{}/user/me/playlists", API_URI).as_str()).unwrap();
         url.query_pairs_mut()
             .extend_pairs([("access_token", self.credentials.access_token.as_str())]);
 
-        self.client.post(url).form(&params).send().unwrap();
+        let res = self.client.post(url).form(&params).send().unwrap();
+
+        match res.status() {
+            StatusCode::OK => {
+                let a = res.json::<serde_json::Value>().unwrap();
+                a["id"].as_i64().unwrap()
+            },
+            _ => 0,
+        }
     }
 
     pub fn add_tracks_to_playlists(&self, playlist_id: usize, tracks: Vec<String>) {
