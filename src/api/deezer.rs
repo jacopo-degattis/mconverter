@@ -2,8 +2,8 @@ use super::utils;
 use crate::models::deezer::{MyPlaylists, Playlist, QueryResults};
 use crate::models::DeezerConfig;
 use crate::models::DeezerTokenResponse;
-use std::io::{stdin, stdout, Write};
 use reqwest::StatusCode;
+use std::io::{stdin, stdout, Write};
 use url::Url;
 
 const API_URI: &str = "https://api.deezer.com/";
@@ -127,6 +127,31 @@ impl Deezer {
         }
     }
 
+    pub fn get_playlist_by_name(&self, name: &str) -> usize {
+        let mut playlist_id: usize = 0;
+        let mut url: Url = Url::parse(format!("{}/user/me/playlists", API_URI).as_str()).unwrap();
+        url.query_pairs_mut()
+            .extend_pairs([("access_token", self.credentials.access_token.as_str())]);
+
+        let res = self.client.get(url).send().unwrap();
+
+        /* TODO: improve this condition using the below code
+            let playlists: Vec<MyPlaylist> =
+            serde_json::from_value(json["data"].take()).unwrap();
+            Remove the MyPlaylists struct and just keep the MyPlaylist one
+        */
+
+        if let Ok(json) = res.json::<MyPlaylists>() {
+            json.data.into_iter().for_each(|playlist| {
+                if playlist.title == name {
+                    playlist_id = playlist.id;
+                }
+            });
+        }
+        playlist_id
+    }
+
+    // TODO: recycle upper funtion to avoid redundant code
     pub fn playlist_exists(&self, playlist_name: &str) -> bool {
         let mut url: Url = Url::parse(format!("{}/user/me/playlists", API_URI).as_str()).unwrap();
         url.query_pairs_mut()
@@ -149,7 +174,7 @@ impl Deezer {
 
     pub fn create_playlist(&self, playlist_name: &str) -> i64 {
         if self.playlist_exists(playlist_name) {
-            return 0
+            return 0;
         }
 
         let params = [("title", playlist_name)];
@@ -163,7 +188,7 @@ impl Deezer {
             StatusCode::OK => {
                 let a = res.json::<serde_json::Value>().unwrap();
                 a["id"].as_i64().unwrap()
-            },
+            }
             _ => 0,
         }
     }

@@ -57,7 +57,10 @@ fn main() {
     if !deezer.playlist_exists(target_playlist.name.as_str()) {
         let id = deezer.create_playlist(target_playlist.name.as_str());
     } else {
-        // let id = deezer.
+        // TODO: warn the user that the playlist already exists
+        println!("Playlist already exists...");
+        let id = deezer.get_playlist_by_name(target_playlist.name.as_str());
+        println!("Got id => {}", id);
     }
 
     // deezer.add_tracks_to_playlists(10344668222, item_ids);
