@@ -7,31 +7,7 @@ use std::io::{stdin, stdout, Write};
 mod api;
 pub mod models;
 
-fn main() {
-    let mut deezer = Deezer::new();
-    let mut spotify = Spotify::new();
-    deezer.authenticate();
-    spotify.authenticate();
-    // // TODO: add regex URL check
-    let mut input: String = String::new();
-
-    // TODO: this way I only support spotify playlist, but it should
-    // also support deezer's one
-    let re = Regex::new(r"\bhttps?://[^/]*\bspotify\.com/playlist/(?P<playlist>[^\s?]+)").unwrap();
-
-    print!("Playlist uri: ");
-
-    let _ = stdout().flush();
-    stdin()
-        .read_line(&mut input)
-        .expect("Please enter a valid URL");
-
-    // TODO: imrove match condition here
-    let playlist_id: &str = re
-        .captures(&input)
-        .and_then(|cap| cap.name("playlist").map(|p| p.as_str()))
-        .unwrap();
-
+fn spot_to_deezer(spotify: &Spotify, deezer: &Deezer, playlist_id: &str) {
     let tracks = spotify.get_tracks_from_playlist(playlist_id);
     let target_playlist = spotify.get_playlist_from_id(playlist_id).unwrap();
 
@@ -53,17 +29,87 @@ fn main() {
             };
         };
     }
+    
+    match deezer.playlist_exists(target_playlist.name.as_str()) {
+        false => {
+            let playlist_id = deezer.create_playlist(target_playlist.name.as_str()) as usize;
+            deezer.add_tracks_to_playlists(playlist_id, item_ids);
+        }
+        true => {
+            print!("Warning, a playlist with this name already exists ! Do you want to merge the songs ? (y/n): ");
+            let mut choice: String = String::new();
+            let _ = stdout().flush();
+            stdin()
+                .read_line(&mut choice)
+                .expect("Please enter a valid response");
 
-    if !deezer.playlist_exists(target_playlist.name.as_str()) {
-        let id = deezer.create_playlist(target_playlist.name.as_str());
-    } else {
-        // TODO: warn the user that the playlist already exists
-        println!("Playlist already exists...");
-        let id = deezer.get_playlist_by_name(target_playlist.name.as_str());
-        println!("Got id => {}", id);
+            if choice.trim().eq("y") {
+                let playlist_id = deezer.get_playlist_by_name(target_playlist.name.as_str());
+                deezer.add_tracks_to_playlists(playlist_id, item_ids);
+            } else {
+                println!("Not merging the playlists...");
+            }
+        }
+    } 
+}
+
+fn deezer_to_spot(spotify: &Spotify, deezer: &Deezer, playlist_id: &str) {
+    let tracks = deezer.get_tracks_from_playlist(playlist_id);
+    let target_playlist = deezer.get_playlist_from_id(playlist_id);
+
+    let mut item_ids: Vec<String> = Vec::new();
+
+    println!("HERE 1");
+
+    for track in tracks {
+
+        // FIXME: is broken
+        match spotify.search(
+            format!(
+                "artist:{}+track:{}",
+                track.artist.name,
+                track.title
+            )
+            .as_str()
+        ) {
+            Ok(result) => println!("Got => {:?}", result),
+            Err(err) => println!("Error => {:?}", err)
+        };
     }
+}
 
-    // deezer.add_tracks_to_playlists(10344668222, item_ids);
+fn main() {
+    let mut deezer = Deezer::new();
+    let mut spotify = Spotify::new();
+    deezer.authenticate();
+    spotify.authenticate();
+    // // TODO: add regex URL check
+    let mut input: String = String::new();
 
-    // println!("Got tracks ids => {:?}", item_ids);
+    // TODO: this way I only support spotify playlist, but it should
+    // also support deezer's one
+    let spotify_re = Regex::new(r"\bhttps?://[^/]*\bspotify\.com/playlist/(?P<playlist>[^\s?]+)").unwrap();
+    let deezer_re = Regex::new(r"\bhttps?://[^/]*\bdeezer\.com/[a-z]{2}/playlist/(?P<playlist>[^\s?]+)").unwrap();
+
+    print!("Playlist uri: ");
+
+    let _ = stdout().flush();
+    stdin()
+        .read_line(&mut input)
+        .expect("Please enter a valid URL");
+
+    // TODO: imrove match condition here
+    if let Some(playlist_id) = spotify_re
+        .captures(&input)
+        .and_then(|cap| cap.name("playlist").map(|p| p.as_str())) {
+            println!("From spotify to deezer...");
+            spot_to_deezer(&spotify, &deezer, playlist_id);
+        }
+
+    if let Some(playlist_id) = deezer_re
+        .captures(&input)
+        .and_then(|cap| cap.name("playlist").map(|p| p.as_str())) {
+            println!("From deezer to spotify...");
+            deezer_to_spot(&spotify, &deezer, playlist_id);
+        }
 }

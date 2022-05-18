@@ -5,6 +5,7 @@ use crate::models::SpotifyTokenResponse;
 use open;
 use std::io::{stdin, stdout, Write};
 use url::Url;
+use reqwest::StatusCode;
 
 const API_URI: &str = "https://api.spotify.com/v1";
 const AUTH_URI: &str = "https://accounts.spotify.com";
@@ -155,19 +156,31 @@ impl Spotify {
         }
     }
 
-    // pub fn update_playlist(&self, id: &str, tracks: Vec<String>) -> bool {
-    //     let params = [("tracks", tracks)];
 
-    //     let res = self
-    //         .client
-    //         .put(format!("{}/playlists/{}/tracks", API_URI, id))
-    //         .form(&params)
-    //         .header(
-    //             "Authorization",
-    //             format!("Bearer {}", self.credentials.access_token),
-    //         )
-    //         .send();
+    pub fn search(&self, query: &str) -> Result<Vec<Track>, serde_json::Error> {
+        let url = format!("{}/{}", API_URI, "search");
+        let mut search_url: Url = Url::parse(url.as_str()).unwrap();
 
-    //     unimplemented!();
-    // }
+        search_url.query_pairs_mut().extend_pairs([("q", query)]);
+
+        let res = self
+            .client
+            .get(search_url)
+            .header("Content-Type", "application/json")
+            .header(
+                "Authorization", 
+                format!("Bearer {}", self.credentials.access_token)
+            )
+            .send()
+            .unwrap();
+
+        println!("res: {:?}", res.status());
+        let mut tracks_array = res.json::<serde_json::Value>().unwrap();        
+        
+        match serde_json::from_value(tracks_array["tracks"].take()) {
+            Ok(json) => Ok(json),
+            Err(err) => Err(err)
+        }
+
+    }
 }

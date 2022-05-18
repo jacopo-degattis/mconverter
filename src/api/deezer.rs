@@ -1,5 +1,5 @@
 use super::utils;
-use crate::models::deezer::{MyPlaylists, Playlist, QueryResults};
+use crate::models::deezer::{MyPlaylists, Playlist, QueryResults, Track};
 use crate::models::DeezerConfig;
 use crate::models::DeezerTokenResponse;
 use reqwest::StatusCode;
@@ -190,6 +190,13 @@ impl Deezer {
                 a["id"].as_i64().unwrap()
             }
             _ => 0,
+        }
+    }
+
+    pub fn get_tracks_from_playlist(&self, playlist_id: &str) -> Vec<Track> {
+        match self.get_playlist_from_id(playlist_id) {
+            Ok(playlist) => playlist.tracks.data,
+            Err(_) => Vec::new(),
         }
     }
 
