@@ -69,16 +69,17 @@ fn deezer_to_spot(spotify: &Spotify, deezer: &Deezer, playlist_id: &str) {
                     .as_str()
                 ) {
                     match result.len() > 0 {
-                        true => item_ids.push(result[0].id.to_string()),
+                        true => item_ids.push(result[0].uri.to_string()),
                         _ => {}
                     }
                 };
             }
 
-            match spotify.playlist_exists("Phonk") {
+            match spotify.playlist_exists(target_playlist.title.as_str()) {
                 false => {
-                    // TODO: create spotify playlist here and 
-                    // then call a function to add songs to playlist
+                    if let Some(playlist_id) = spotify.create_playlist(target_playlist.title.as_str()) {
+                        spotify.add_tracks_to_playlist(playlist_id.as_str(), item_ids);
+                    }
                 }
                 true => {
                     print!("Warning, a playlist with this name already exists ! Do you want to merge the songs ? (y/n): ");
@@ -89,10 +90,8 @@ fn deezer_to_spot(spotify: &Spotify, deezer: &Deezer, playlist_id: &str) {
                         .expect("Please enter a valid response");
         
                     if choice.trim().eq("y") {
-                        // TOOD: handle the case where the playlist already exists
-                        // ask to the user if he wants to merge the playlists or not
-                        // let playlist_id = deezer.get_playlist_by_name(target_playlist.name.as_str());
-                        // deezer.add_tracks_to_playlists(playlist_id, item_ids);
+                        let playlist_id = spotify.get_playlist_by_name(target_playlist.title.as_str());
+                        spotify.add_tracks_to_playlist(playlist_id.as_str(), item_ids);
                     } else {
                         println!("Not merging the playlists...");
                     }

@@ -1,5 +1,5 @@
 use super::utils;
-use crate::models::spotify::{Playlist, Track, TrackInfo, MyPlaylists};
+use crate::models::spotify::{Playlist, Track, TrackInfo, Profile};
 use crate::models::SpotifyConfig;
 use crate::models::SpotifyTokenResponse;
 use open;
@@ -175,6 +175,80 @@ impl Spotify {
 
     pub fn playlist_exists(&self, playlist_name: &str) -> bool {
         self.get_playlist_by_name(playlist_name).len() > 0
+    }
+
+    pub fn get_current_user_profile(&self) -> Option<Profile> {
+        let res = self
+            .client
+            .get(format!("{}/me", API_URI))
+            .header("Content-Type", "application/json")
+            .header(
+                "Authorization",
+                format!("Bearer {}", self.credentials.access_token),
+            )
+            .send()
+            .unwrap();
+
+        match res.json::<Profile>() {
+            Ok(json) => Some(json),
+            Err(_) => None
+        }
+    }
+
+    pub fn create_playlist(&self, playlist_name: &str) -> Option<String> {
+        // TODO: create a struct variable to store current user data ?
+        // So execute the get_curr_user_profile on start ?
+        match self.get_current_user_profile() {
+            Some(data) => {
+                let mut map = HashMap::new();
+                map.insert("name", playlist_name);
+
+                let res = self
+                    .client
+                    .post(format!("{}/users/{}/playlists", API_URI, data.id))
+                    .json(&map)
+                    .header("Content-Type", "application/json")
+                    .header(
+                        "Authorization",
+                        format!("Bearer {}", self.credentials.access_token),
+                    )
+                    .send()
+                    .unwrap();
+                
+                match res.json::<Playlist>() {
+                    Ok(data) => Some(data.id),
+                    Err(err) => {
+                        println!("Error while creating, {:?}", err);
+                        None
+                    }
+                }
+            },
+            _ => None
+        }
+    }
+
+    pub fn add_tracks_to_playlist(&self, playlist_id: &str, tracks: Vec<String>) {
+        let url: Url = Url::parse(format!("{}/playlists/{}/tracks", API_URI, playlist_id).as_str()).unwrap();
+        
+        println!("Got => {:?}", tracks);
+
+        // let payload = HashMap::from([("uris", tracks.join(","))]);
+        let mut map = HashMap::new();
+        map.insert("uris", tracks);
+
+        let res = self
+            .client
+            .post(url)
+            .json(&map)
+            .header("Content-Type", "application/json")
+            .header(
+                "Authorization",
+                format!("Bearer {}", self.credentials.access_token),
+            )
+            .send()
+            .unwrap();
+
+        println!("Got response => {:?}", res.text());
     }
 
     pub fn get_tracks_from_playlist(&self, id: &str) -> Vec<Track> {

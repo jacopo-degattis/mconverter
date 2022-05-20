@@ -122,7 +122,7 @@ pub struct Tracks {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Playlist {
     pub collaborative: bool,
-    pub description: String,
+    pub description: Option<String>,
     pub external_urls: ExternalUrls,
     pub followers: Followers,
     pub href: String,
@@ -146,4 +146,25 @@ pub struct MyPlaylists {
     pub previous: Option<i16>,
     pub total: i16,
     pub items: Vec<Playlist>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ExplicitContent {
+    pub filter_enabled: bool,
+    pub filter_locked: bool,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Profile {
+    pub country: String,
+    pub display_name: String,
+    pub email: String,
+    pub explicit_content: ExplicitContent,
+    pub external_urls: ExternalUrls,
+    pub followers: Followers,
+    pub href: String,
+    pub id: String,
+    pub images: Vec<Images>,
+    pub product: String,
+    pub uri: String
 }
