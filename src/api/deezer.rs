@@ -120,11 +120,18 @@ impl Deezer {
             .form(&params)
             .send()
             .unwrap();
+        
+        let status_code = &res.status();
+        
+        println!("Status => {:?}", status_code);
 
         match res.json::<Playlist>() {
             Ok(json) => Ok(json),
-            Err(err) => Err(err),
+            Err(err) => {
+                Err(err)
+            },
         }
+
     }
 
     pub fn get_playlist_by_name(&self, name: &str) -> usize {
@@ -152,6 +159,8 @@ impl Deezer {
     }
 
     // TODO: recycle upper funtion to avoid redundant code
+    // TODO: this function could also have been a request to playlist/<id>
+    // and if the response was 404 then the playlists doesn't exists, DO THIS ?? OR NOT ??
     pub fn playlist_exists(&self, playlist_name: &str) -> bool {
         let mut url: Url = Url::parse(format!("{}/user/me/playlists", API_URI).as_str()).unwrap();
         url.query_pairs_mut()

@@ -68,7 +68,7 @@ pub struct TrackInfo {
     pub available_markets: Vec<String>,
     pub disc_number: i8,
     pub duration_ms: i32,
-    pub episode: bool,
+    pub episode: Option<bool>,
     pub explicit: bool,
     pub external_ids: ExternalIds,
     pub external_urls: ExternalUrls,
@@ -78,7 +78,7 @@ pub struct TrackInfo {
     pub name: String,
     pub popularity: i16,
     pub preview_url: Option<String>,
-    pub track: bool,
+    pub track: Option<bool>,
     pub track_number: i16,
     // pub _type: String,
     pub uri: String,
@@ -135,4 +135,15 @@ pub struct Playlist {
     pub tracks: Tracks,
     // pub _type: String,
     pub uri: String,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct MyPlaylists {
+    pub href: String,
+    pub next: Option<i16>,
+    pub limit: i16,
+    pub offset: i16,
+    pub previous: Option<i16>,
+    pub total: i16,
+    pub items: Vec<Playlist>,
 }

@@ -53,29 +53,37 @@ fn spot_to_deezer(spotify: &Spotify, deezer: &Deezer, playlist_id: &str) {
     } 
 }
 
-fn deezer_to_spot(spotify: &Spotify, deezer: &Deezer, playlist_id: &str) {
-    let tracks = deezer.get_tracks_from_playlist(playlist_id);
-    let target_playlist = deezer.get_playlist_from_id(playlist_id);
+fn deezer_to_spot(spotify: &Spotify, deezer: &Deezer, playlist_id: &str) {    
+    match deezer.get_playlist_from_id(playlist_id) {
+        Ok(target_playlist) => {
+            let tracks = target_playlist.tracks.data;
+            let mut item_ids: Vec<String> = Vec::new();
 
-    let mut item_ids: Vec<String> = Vec::new();
-
-    println!("HERE 1");
-
-    for track in tracks {
-
-        // FIXME: is broken
-        match spotify.search(
-            format!(
-                "artist:{}+track:{}",
-                track.artist.name,
-                track.title
-            )
-            .as_str()
-        ) {
-            Ok(result) => println!("Got => {:?}", result),
-            Err(err) => println!("Error => {:?}", err)
-        };
-    }
+            for track in tracks {
+                if let Ok(result) = spotify.search(
+                    format!(
+                        "artist:{}+track:{}",
+                        track.artist.name,
+                        track.title
+                    )
+                    .as_str()
+                ) {
+                    match result.len() > 0 {
+                        true => item_ids.push(result[0].id.to_string()),
+                        _ => {}
+                    }
+                };
+            }
+        
+            println!("Checking if {} exists on spotify", target_playlist.title.as_str());
+            spotify.playlist_exists(target_playlist.title.as_str());
+            // match spotify.playlist_exists(target_playlist.title.as_str()) {
+            //     Ok(ok) => println!("Ok => {:?}", ok),
+            //     Err(err) => println!("Err => {:?}", err)
+            // };
+        },
+        Err(err) => println!("Error => {:?}", err)
+    };
 }
 
 fn main() {

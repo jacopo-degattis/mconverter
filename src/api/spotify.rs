@@ -1,5 +1,5 @@
 use super::utils;
-use crate::models::spotify::{Playlist, Track};
+use crate::models::spotify::{Playlist, Track, TrackInfo, MyPlaylists};
 use crate::models::SpotifyConfig;
 use crate::models::SpotifyTokenResponse;
 use open;
@@ -143,6 +143,27 @@ impl Spotify {
         }
     }
 
+    pub fn playlist_exists(&self, playlist_name: &str) {
+        let res = self
+            .client
+            .get(format!("{}/me/playlists", API_URI))
+            .header("Content-Type", "application/json")
+            .header(
+                "Authorization",
+                format!("Bearer {}", self.credentials.access_token),
+            )
+            .send()
+            .unwrap();
+
+        println!("Statusdd => {:?}", res.status());
+
+        // println!("S => {:?}", res.text());
+        match res.json::<MyPlaylists>() {
+            Ok(json) => println!("Data => {:?}", json),
+            Err(err) => println!("Err => {:?}", err)
+        }
+    }
+
     pub fn get_tracks_from_playlist(&self, id: &str) -> Vec<Track> {
         match self.get_playlist_from_id(id) {
             // Ok(playlist) => playlist
@@ -157,11 +178,11 @@ impl Spotify {
     }
 
 
-    pub fn search(&self, query: &str) -> Result<Vec<Track>, serde_json::Error> {
+    pub fn search(&self, query: &str) -> Result<Vec<TrackInfo>, serde_json::Error> {
         let url = format!("{}/{}", API_URI, "search");
         let mut search_url: Url = Url::parse(url.as_str()).unwrap();
 
-        search_url.query_pairs_mut().extend_pairs([("q", query)]);
+        search_url.query_pairs_mut().extend_pairs([("q", query), ("type", "track")]);
 
         let res = self
             .client
@@ -174,13 +195,14 @@ impl Spotify {
             .send()
             .unwrap();
 
-        println!("res: {:?}", res.status());
         let mut tracks_array = res.json::<serde_json::Value>().unwrap();        
         
-        match serde_json::from_value(tracks_array["tracks"].take()) {
+        // println!("Value, {:?}", res.text());
+
+        match serde_json::from_value(tracks_array["tracks"]["items"].take()) {
             Ok(json) => Ok(json),
             Err(err) => Err(err)
         }
-
+        // unimplemented!();
     }
 }
