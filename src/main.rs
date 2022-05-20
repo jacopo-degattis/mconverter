@@ -75,29 +75,12 @@ fn deezer_to_spot(spotify: &Spotify, deezer: &Deezer, playlist_id: &str) {
                 };
             }
         
-            match spotify.playlist_exists("Phonk") {
-                false => {
-                    // TODO: create spotify playlist here and 
-                    // then call a function to add songs to playlist
-                }
-                true => {
-                    print!("Warning, a playlist with this name already exists ! Do you want to merge the songs ? (y/n): ");
-                    let mut choice: String = String::new();
-                    let _ = stdout().flush();
-                    stdin()
-                        .read_line(&mut choice)
-                        .expect("Please enter a valid response");
-        
-                    if choice.trim().eq("y") {
-                        // TOOD: handle the case where the playlist already exists
-                        // ask to the user if he wants to merge the playlists or not
-                        // let playlist_id = deezer.get_playlist_by_name(target_playlist.name.as_str());
-                        // deezer.add_tracks_to_playlists(playlist_id, item_ids);
-                    } else {
-                        println!("Not merging the playlists...");
-                    }
-                }
-            };
+            println!("Checking if {} exists on spotify", target_playlist.title.as_str());
+            spotify.playlist_exists(target_playlist.title.as_str());
+            // match spotify.playlist_exists(target_playlist.title.as_str()) {
+            //     Ok(ok) => println!("Ok => {:?}", ok),
+            //     Err(err) => println!("Err => {:?}", err)
+            // };
         },
         Err(err) => println!("Error => {:?}", err)
     };

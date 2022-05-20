@@ -6,7 +6,6 @@ use open;
 use std::io::{stdin, stdout, Write};
 use url::Url;
 use reqwest::StatusCode;
-use std::collections::HashMap;
 
 const API_URI: &str = "https://api.spotify.com/v1";
 const AUTH_URI: &str = "https://accounts.spotify.com";
@@ -144,7 +143,7 @@ impl Spotify {
         }
     }
 
-    pub fn get_playlist_by_name(&self, playlist_name: &str) -> String {
+    pub fn playlist_exists(&self, playlist_name: &str) {
         let res = self
             .client
             .get(format!("{}/me/playlists", API_URI))
@@ -156,25 +155,13 @@ impl Spotify {
             .send()
             .unwrap();
 
-        let mut data = res.json::<serde_json::Value>().unwrap();
+        println!("Statusdd => {:?}", res.status());
 
-        // println!("Got => {:?}", data["items"]);
-
-        let tmp = data["items"].as_array().unwrap();
-        // let tmp = data.get("items").unwrap();
-        // let a: Vec<Playlist> = serde_json::from_value(tmp).unwrap();
-        
-        for pl in tmp {
-            if pl["name"].eq(playlist_name) {
-                return String::from(pl["id"].as_str().unwrap())
-            }
+        // println!("S => {:?}", res.text());
+        match res.json::<MyPlaylists>() {
+            Ok(json) => println!("Data => {:?}", json),
+            Err(err) => println!("Err => {:?}", err)
         }
-
-        return String::from("")
-    }
-
-    pub fn playlist_exists(&self, playlist_name: &str) -> bool {
-        self.get_playlist_by_name(playlist_name).len() > 0
     }
 
     pub fn get_tracks_from_playlist(&self, id: &str) -> Vec<Track> {
