@@ -1,13 +1,13 @@
 {
     "spotify": {
-        "client_id": "292eaeea04014559965b136528521a03",
-        "client_secret": "c4465aa2054446458ddc4ea68731be59",
+        "client_id": "<CLIENT_ID>",
+        "client_secret": "<CLIENT_SECRET>",
         "scopes": ["user-read-private", "user-read-email", "playlist-modify-public"],
         "redirect_uri": "https://www.google.it/"
     },
     "deezer": {
-        "app_id": "395164",
-        "app_secret": "d1f5b10dd534bb8ee9bdae5b22125a43",
+        "app_id": "<APP_ID>",
+        "app_secret": "<APP_SECRET>",
         "scopes": ["basic_access","email", "offline_access", "manage_library"],
         "redirect_uri": "https://www.google.it/"
     }
